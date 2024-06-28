@@ -1,4 +1,28 @@
-class Sensor {}
+class Sensor {
+    constructor(id, name, type, value, unit, updatedAt) {
+        this.id = id;
+        this.name = name;
+        this.type = this.conditionType(type);
+        this.value = value;
+        this.unit = unit;
+        this.updatedAt = updatedAt;
+    }
+
+    conditionType(type) {
+        const conditions = ["temperature", "humidity", "pressure"];
+        if (conditions.includes(type)) {
+            console.log("Valor ingresado correctamente.");
+            return type;
+        } else {
+            throw new Error(`Tipo invalido en sensor: ${type}. Tipos validos: ${conditions.join(', ')}`);
+        }
+    }
+
+    set updateValue(value) {
+        this.value = value;
+        this.updatedAt = new Date().toISOString();
+    }
+}
 
 class SensorManager {
     constructor() {
@@ -14,26 +38,46 @@ class SensorManager {
         if (sensor) {
             let newValue;
             switch (sensor.type) {
-                case "temperatura": // Rango de -30 a 50 grados Celsius
+                case "temperature": // Rango de -30 a 50 grados Celsius
                     newValue = (Math.random() * 80 - 30).toFixed(2);
                     break;
-                case "humedad": // Rango de 0 a 100%
+                case "humidity": // Rango de 0 a 100%
                     newValue = (Math.random() * 100).toFixed(2);
                     break;
-                case "presion": // Rango de 960 a 1040 hPa (hectopascales o milibares)
+                case "pressure": // Rango de 960 a 1040 hPa (hectopascales o milibares)
                     newValue = (Math.random() * 80 + 960).toFixed(2);
                     break;
                 default: // Valor por defecto si el tipo es desconocido
                     newValue = (Math.random() * 100).toFixed(2);
             }
             sensor.updateValue = newValue;
+
             this.render();
         } else {
             console.error(`Sensor ID ${id} no encontrado`);
         }
     }
 
-    async loadSensors(url) {}
+    async loadSensors(url) {
+        try {
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`Error fetching sensors: ${response.statusText}`);
+            }
+            const sensorsArray = await response.json();
+            this.sensors = sensorsArray.map(sensorData => new Sensor(
+                sensorData.id,
+                sensorData.name,
+                sensorData.type,
+                sensorData.value,
+                sensorData.unit,
+                new Date(sensorData.updated_at)
+            ));
+            this.render();
+        } catch (error) {
+            console.error('Error loading sensors:', error);
+        }
+    }
 
     render() {
         const container = document.getElementById("sensor-container");
@@ -58,16 +102,12 @@ class SensorManager {
                                ${sensor.value} ${sensor.unit}
                             </p>
                         </div>
-                        <time datetime="${sensor.updated_at}">
-                            Última actualización: ${new Date(
-                                sensor.updated_at
-                            ).toLocaleString()}
+                        <time datetime="${sensor.updatedAt}">
+                            Última actualización: ${new Date(sensor.updatedAt).toLocaleString()}
                         </time>
                     </div>
                     <footer class="card-footer">
-                        <a href="#" class="card-footer-item update-button" data-id="${
-                            sensor.id
-                        }">Actualizar</a>
+                        <a href="#" class="card-footer-item update-button" data-id="${sensor.id}">Actualizar</a>
                     </footer>
                 </div>
             `;
@@ -86,5 +126,4 @@ class SensorManager {
 }
 
 const monitor = new SensorManager();
-
 monitor.loadSensors("sensors.json");
