@@ -134,7 +134,7 @@ class MemoryGame {
 
             if (this.flippedCards.length === 2) {
                 this.moveCount++;
-                this.updateMoveCountDisplay();
+                this.updateMoveCount();
                 setTimeout(() => this.checkForMatch(), this.flipDuration);
             }
         }
@@ -158,14 +158,14 @@ class MemoryGame {
         }
     }
 
-    updateMoveCountDisplay() {
+    updateMoveCount() {
         const moveCountElement = document.getElementById("move-count");
         if (moveCountElement) {
-            moveCountElement.textContent = `Movimientos: ${this.moveCount}`;
+            moveCountElement.textContent = `N° de Movimientos: ${this.moveCount}`;
         } else {
             const newMoveCountElement = document.createElement("div");
             newMoveCountElement.id = "move-count";
-            newMoveCountElement.textContent = `Movimientos: ${this.moveCount}`;
+            newMoveCountElement.textContent = `N° de Movimientos: ${this.moveCount}`;
             document.body.appendChild(newMoveCountElement);
         }
     }
@@ -174,7 +174,7 @@ class MemoryGame {
         this.flippedCards = [];
         this.matchedCards = [];
         this.moveCount = 0;
-        this.updateMoveCountDisplay();
+        this.updateMoveCount();
         this.board.reset();
     }
 }
