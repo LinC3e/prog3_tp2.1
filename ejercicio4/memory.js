@@ -115,6 +115,7 @@ class MemoryGame {
         this.board = board;
         this.flippedCards = [];
         this.matchedCards = [];
+        this.moveCount = 0;
         if (flipDuration < 350 || isNaN(flipDuration) || flipDuration > 3000) {
             flipDuration = 350;
             alert(
@@ -132,6 +133,8 @@ class MemoryGame {
             this.flippedCards.push(card);
 
             if (this.flippedCards.length === 2) {
+                this.moveCount++;
+                this.updateMoveCountDisplay();
                 setTimeout(() => this.checkForMatch(), this.flipDuration);
             }
         }
@@ -155,9 +158,23 @@ class MemoryGame {
         }
     }
 
+    updateMoveCountDisplay() {
+        const moveCountElement = document.getElementById("move-count");
+        if (moveCountElement) {
+            moveCountElement.textContent = `Movimientos: ${this.moveCount}`;
+        } else {
+            const newMoveCountElement = document.createElement("div");
+            newMoveCountElement.id = "move-count";
+            newMoveCountElement.textContent = `Movimientos: ${this.moveCount}`;
+            document.body.appendChild(newMoveCountElement);
+        }
+    }
+
     resetGame() {
         this.flippedCards = [];
         this.matchedCards = [];
+        this.moveCount = 0;
+        this.updateMoveCountDisplay();
         this.board.reset();
     }
 }
